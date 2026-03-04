@@ -97,19 +97,31 @@
   }
 
   function removeShowHiddenElements() {
-    const candidates = document.querySelectorAll("a, button, span, div, li, [role='button'], [role='menuitemradio']");
-    for (const candidate of candidates) {
-      const text = candidate.textContent
-        ? candidate.textContent.replace(/\s+/g, " ").trim().toLowerCase()
-        : "";
+    const root = document.body || document.documentElement;
+    if (!root) {
+      return;
+    }
 
-      if (!text.includes("show hidden")) {
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    const matches = [];
+    let currentNode = walker.nextNode();
+
+    while (currentNode) {
+      const text = currentNode.nodeValue ? currentNode.nodeValue.replace(/\s+/g, " ").trim().toLowerCase() : "";
+      if (text === "show hidden") {
+        matches.push(currentNode);
+      }
+      currentNode = walker.nextNode();
+    }
+
+    for (const node of matches) {
+      const parent = node.parentElement;
+      if (!parent) {
         continue;
       }
 
       const removable =
-        candidate.closest("a, button, [role='button'], [role='menuitemradio'], .filter-link, .pill-filter") ||
-        candidate;
+        parent.closest("a, button, [role='button'], [role='menuitemradio'], .filter-link, .pill-filter") || parent;
       removable.remove();
     }
   }
