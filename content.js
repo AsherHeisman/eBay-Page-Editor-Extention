@@ -96,10 +96,29 @@
     }
   }
 
+  function removeShowHiddenElements() {
+    const candidates = document.querySelectorAll("a, button, span, div, li, [role='button'], [role='menuitemradio']");
+    for (const candidate of candidates) {
+      const text = candidate.textContent
+        ? candidate.textContent.replace(/\s+/g, " ").trim().toLowerCase()
+        : "";
+
+      if (!text.includes("show hidden")) {
+        continue;
+      }
+
+      const removable =
+        candidate.closest("a, button, [role='button'], [role='menuitemradio'], .filter-link, .pill-filter") ||
+        candidate;
+      removable.remove();
+    }
+  }
+
   function applyRemovals() {
     removeReadyToResellContainer();
     removePurchaseSearchControls();
     removeDeletedMessageMenuItem();
+    removeShowHiddenElements();
   }
 
   function startObserver() {
